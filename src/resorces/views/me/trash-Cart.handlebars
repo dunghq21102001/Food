@@ -1,0 +1,103 @@
+<div class="mt-4">
+    <div>
+        <button type="button" class="btn btn-dark "><a href="/me/stored/cart" class="whiteColor">⬅️ Back to Selected
+                Dishes</a></button>
+        <h2>Deleted Dishes</h2>
+    </div>
+    <table class="table mt-4">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Expiration Date</th>
+                <th scope="col">Create Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each generals}}
+            <tr>
+                <th scope="row">{{sum @index 1}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.expirationDate}}</td>
+                <td>{{this.createdAt}}</td>
+                <td>
+                    <a href="" class="btn btn-dark btn-restore" data-id="{{this._id}}">Restore</a>
+                    {{!-- <a href="" class="btn btn-dark">Delete</a> --}}
+                    <button type="button" class="btn btn-dark del-course" data-toggle="modal" data-id="{{this._id}}"
+                        data-target="#deleteButton">
+                        Permanently Deleted
+                    </button>
+                </td>
+            </tr>
+
+            {{else}}
+            <tr>
+                <td colspan="5" class="text-center">
+                    Empty Recycle Bin
+                </td>
+            </tr>
+
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+{{!-- confirm delete --}}
+<div class="modal fade" id="deleteButton" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">confirm</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                This action cannot be undone, are you sure you want to delete it?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="btn-delete-food" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<form name="delete-form" method="POST"></form>
+<form name="restore-form" method="POST"></form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var generalId;
+        var deleteForm = document.forms['delete-form']
+        var restoreForm = document.forms['restore-form']
+        var btnDelete = document.getElementById('btn-delete-food')
+        var btnRestore = $('.btn-restore')
+
+
+
+        $('#deleteButton').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            generalId = button.data('id')
+        })
+        btnDelete.onclick = function () {
+            deleteForm.action = '/generals/' + generalId + '/force?_method=DELETE'
+            deleteForm.submit()
+        }
+
+
+        // click dc restore buton ko can loop qua tat ca buton
+        btnRestore.click(function (e) {
+            e.preventDefault()
+            var foodId = $(this).data('id')
+            restoreForm.action = '/generals/' + foodId + '/restore?_method=PATCH'
+            restoreForm.submit()
+        })
+    })
+</script>
+
+

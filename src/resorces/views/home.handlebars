@@ -1,0 +1,20 @@
+<div class="mt-4">
+    <div class="row">
+        {{#each generals}}
+        <div class="col-sm-6 col-lg-4">
+            <div class="card general-item">
+                <a href="/generals/{{this.slug}}">
+                    <img class="card-img-top" src="{{this.image}}" alt="{{this.name}}">
+                </a>
+                <div class="card-body">
+                    <a href="/generals/{{this.slug}}">
+                        <h5 class="card-title">{{this.name}}</h5>
+                    </a>
+                    <p class="card-text">{{this.price}}</p>
+                    <a href="/generals/{{this.slug}}" class="btn btn-primary">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>

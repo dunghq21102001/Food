@@ -1,0 +1,166 @@
+<form name="container-form" method="POST" class="mt-4" action="/generals/handle-form-action">
+    <div>
+        <h2>Selected Dishes</h2>
+        <button type="button" class="btn btn-dark"><a href="/me/trash/cart" class="whiteColor">
+                📦 Recycle Bin
+                ({{deleteCount}})</a>
+        </button>
+
+        <div class="mt-4 d-flex align-items-center">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="checkBox-all">
+                <label class="form-check-label" for="checkBox-all">
+                    Select All
+                </label>
+            </div>
+
+            <select class="form-control form-control-sm select-all-option" name="action" required>
+                <option value="">-- Choose Action --</option>
+                <option value="delete">Delete</option>
+                <option>None</option>
+                <option>None</option>
+                <option>None</option>
+            </select>
+            <button class="btn btn-primary btn-sm Btn-submit" disabled>
+                Apply
+            </button>
+        </div>
+
+    </div>
+    <table class="table mt-4">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th>Number</th>
+                <th scope="col">Name
+                    {{{sortable 'name' _sort}}}
+                </th>
+
+                <th scope="col">Expiration Date
+                    {{{sortable 'expirationDate' _sort}}}
+                </th>
+                <th scope="col">Create Date
+                    {{{sortable 'createdAt' _sort}}}
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each generals}}
+            <tr>
+                <td>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="foodIds[]" value="{{this._id}}" id="">
+                    </div>
+                </td>
+                <th scope="row">{{sum @index 1}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.expirationDate}}</td>
+                <td>{{this.createdAt}}</td>
+                <td>
+                    <a href="/generals/{{this._id}}/edit" class="btn btn-dark">Update</a>
+                    {{!-- <a href="" class="btn btn-dark">Delete</a> --}}
+                    <button type="button" class="btn btn-dark del-course" data-toggle="modal" data-id="{{this._id}}"
+                        data-target="#deleteButton">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+
+            {{else}}
+            <tr>
+                <td colspan="5" class="text-center">
+                    You have not added any dishes yet !!!
+                    <a href="/generals/create">Add food here</a>
+                </td>
+            </tr>
+
+            {{/each}}
+        </tbody>
+    </table>
+</form>
+
+{{!-- confirm delete --}}
+<div class="modal fade" id="deleteButton" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">confirm</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure to delete?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="btn-delete-food" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{{!-- Hiden Delete form --}}
+<form name="delete-form" method="POST"></form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var generalId;
+        var deleteForm = document.forms['delete-form']
+        var btnDelete = document.getElementById('btn-delete-food')
+        var checkBoxAll = $('#checkBox-all')
+        var ItemsCheckBox = $('input[name="foodIds[]"]')
+        var submitCheckButton = $('.Btn-submit')
+        var containerForm = $('form[name="container-form"]')
+
+        $('#deleteButton').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            generalId = button.data('id')
+        })
+        btnDelete.onclick = function () {
+            deleteForm.action = '/generals/' + generalId + '?_method=DELETE'
+            deleteForm.submit()
+        }
+
+        //check box all click
+        checkBoxAll.change(function () {
+            var isChecked = $(this).prop('checked')
+            if (isChecked) {
+                ItemsCheckBox.prop('checked', true)
+            } else ItemsCheckBox.prop('checked', false)
+            renderCheckedAllSubmitBtn()
+        })
+
+
+        //Items CheckBox
+        ItemsCheckBox.change(function () {
+            var isCheckedAll = ItemsCheckBox.length === $('input[name="foodIds[]"]:checked').length
+            checkBoxAll.prop('checked', isCheckedAll)
+            renderCheckedAllSubmitBtn()
+        })
+
+        //Re-render submit button check 
+
+        function renderCheckedAllSubmitBtn() {
+            var checkedCounts = $('input[name="foodIds[]"]:checked').length
+            if (checkedCounts > 0) {
+                submitCheckButton.attr('disabled', false)
+            } else submitCheckButton.attr('disabled', true)
+        }
+
+        //checked all submit button clicked
+        containerForm.on('submit', function (e) {
+            var isSubmittable = !submitCheckButton.hasClass('disabled')
+            if (!isSubmittable) {
+                e.preventDefault()
+            }
+        })
+
+
+    })
+
+
+</script>
